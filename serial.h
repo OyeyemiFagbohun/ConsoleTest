@@ -1,6 +1,7 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 #include <QObject>
+#include <QFile>
 
 class QSerialPort;
 
@@ -12,8 +13,12 @@ class serial
 
 private:
     QSerialPort *sport;
+    QFile dbFile;
     QString receivedHeader;
     bool openPort(const QString&);
+    bool isHeaderMode;
+    int sizeOfData;
+    int readDataS;
 
 public:
     serial(QObject *parent = 0);
