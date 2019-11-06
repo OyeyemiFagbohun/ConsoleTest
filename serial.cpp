@@ -31,7 +31,7 @@ void serial :: readSerial()
     QString receivedHeader;
     QByteArray in = sport->readAll();
     receivedHeader.append(in);
-    while (!in.endsWith("\\n")) {
+    while (!receivedHeader.endsWith("\\n")) {
         in = sport->readAll();
         receivedHeader.append(in);
     }
