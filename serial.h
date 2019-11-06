@@ -12,6 +12,7 @@ class serial
 
 private:
     QSerialPort *sport;
+    QString receivedHeader;
     bool openPort(const QString&);
 
 public:

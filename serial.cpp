@@ -28,15 +28,13 @@ bool serial :: openPort(const QString& port)
 void serial :: readSerial()
 {
     qDebug() << "Read started ...";
-    QString receivedHeader;
     QByteArray in = sport->readAll();
     receivedHeader.append(in);
-    while (!receivedHeader.endsWith("\n\0")) {
-        in = sport->readAll();
-        receivedHeader.append(in);
+    if (in.endsWith("\n\0"))
+    {
+        qDebug() << "Read ended ...";
+        qDebug() << "Received: " << receivedHeader;
     }
-    qDebug() << "Read ended ...";
-    qDebug() << "Received: " << receivedHeader;
 }
 
 void serial :: closePort()
