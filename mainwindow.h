@@ -7,6 +7,8 @@ namespace Ui {
 class MainWindow;
 }
 
+class serial;
+
 class MainWindow :
         public QMainWindow
 {
@@ -18,6 +20,11 @@ public:
 
 private:
     Ui::MainWindow *ui;
+    serial *s;
+
+public slots:
+    void setMessage(QString);
+    void newCard(QString);
 };
 
 #endif // MAINWINDOW_H

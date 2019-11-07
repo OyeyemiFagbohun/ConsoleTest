@@ -18,7 +18,10 @@ serial :: serial(QObject *parent)
 
     dbFile.setFileName("db.db");
 
-    qDebug() << "Console: Serial port opened: " << openPort("/dev/serial0", "/dev/ttyUSB0");
+    if(openPort("/dev/serial0", "/dev/ttyUSB0"))
+        emit message("Port connected");
+    else
+        emit message("Port Error");
 
     isHeaderMode = true;
     sizeOfData = 0;
@@ -56,14 +59,15 @@ void serial :: readSerial()
         if (in.endsWith("\n\0"))
         {
             receivedHeader.chop(1);
-            qDebug() << "Read header ended ...";
-            qDebug() << "Received: " << receivedHeader;
+            emit message("Header received");
+            //qDebug() << "Received: " << receivedHeader;
             int cnv = receivedHeader.toInt();
             if(cnv > 0)
             {
                 isHeaderMode = false;
                 sizeOfData = cnv;
-                qDebug() << "File opened for write ...";
+                emit message("Getting data ..");
+                //qDebug() << "File opened for write ...";
                 dbFile.open(QFile::WriteOnly | QFile::Truncate);
                 dbFile.close();
                 dbFile.open(QFile::WriteOnly | QFile::Append);
@@ -83,7 +87,8 @@ void serial :: readSerial()
             dbFile.close();
             sizeOfData = 0;
             isHeaderMode = true;
-            qDebug() << "Data write done and saved ";
+            emit message("Get data done..");
+            //qDebug() << "Data write done and saved ";
         }
     }
 }

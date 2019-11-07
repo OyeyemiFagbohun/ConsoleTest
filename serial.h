@@ -35,6 +35,7 @@ private slots:
 
 signals:
     void newCard(QString);
+    void message(QString);
 };
 
 #endif // SERIAL_H
