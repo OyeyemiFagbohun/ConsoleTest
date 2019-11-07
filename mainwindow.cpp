@@ -10,6 +10,7 @@
 #include <QVariant>
 #include <QStandardPaths>
 #include <QFileDialog>
+#include <QDesktopWidget>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowFlags(Qt::FramelessWindowHint);
+    move(QApplication::desktop()->availableGeometry().center() - rect().center());
 
     ui->groupBox->setHidden(true);
 }
