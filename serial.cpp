@@ -1,6 +1,7 @@
 #include "serial.h"
 #include <QDebug>
 #include <QSerialPort>
+#include <QTimer>
 
 serial :: serial(QObject *parent)
     : QObject(parent)
@@ -25,6 +26,10 @@ serial :: serial(QObject *parent)
 
     isHeaderMode = true;
     sizeOfData = 0;
+
+    timer = new QTimer(this);
+    connect(timer, SIGNAL(timeout()), this, SLOT(update()));
+    timer->start(2000);
 }
 
 
@@ -42,7 +47,7 @@ bool serial :: openPort(const QString& port, const QString& cport)
 
     cardPort->setDataBits(QSerialPort::Data8);
     cardPort->setParity(QSerialPort::NoParity);
-    cardPort->setBaudRate(115200);
+    cardPort->setBaudRate(9600);
     cardPort->setPortName(cport);
 
     if( sport->open(QIODevice::ReadWrite) && cardPort->open(QIODevice::ReadOnly) )
@@ -109,4 +114,12 @@ void serial :: closePort()
 {
     sport->close();
     cardPort->close();
+}
+
+void serial :: update()
+{
+    if(cardPort->isOpen())
+        emit message("Cont ..");
+    else
+        emit message("failed");
 }

@@ -4,6 +4,7 @@
 #include <QFile>
 
 class QSerialPort;
+class QTimer;
 
 class serial
         : public QObject
@@ -17,6 +18,7 @@ private:
     bool isHeaderMode;
     int sizeOfData;
     int readDataS;
+    QTimer *timer;
 
     QFile dbFile;
 
@@ -32,6 +34,7 @@ public:
 private slots:
     void readSerial();
     void readCard();
+    void update();
 
 signals:
     void newCard(QString);
