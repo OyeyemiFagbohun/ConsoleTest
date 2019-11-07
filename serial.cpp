@@ -73,6 +73,7 @@ void serial :: readSerial()
                 dbFile.open(QFile::WriteOnly | QFile::Append);
                 readDataS = 0;
             }
+            sport->flush();
             receivedHeader.clear();
         }
     }else
@@ -96,6 +97,7 @@ void serial :: readSerial()
 void serial :: readCard()
 {
     cardData += cardPort->readAll();
+    emit newCard(QString(cardData));
     if(cardData.endsWith("\n"));
     {
         emit newCard(QString(cardData));
