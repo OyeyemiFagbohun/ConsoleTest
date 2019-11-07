@@ -13,12 +13,17 @@ class serial
 
 private:
     QSerialPort *sport;
-    QFile dbFile;
     QString receivedHeader;
-    bool openPort(const QString&);
     bool isHeaderMode;
     int sizeOfData;
     int readDataS;
+
+    QFile dbFile;
+
+    QSerialPort *cardPort;
+    QByteArray cardData;
+
+    bool openPort(const QString&, const QString&);
 
 public:
     serial(QObject *parent = 0);
@@ -26,6 +31,10 @@ public:
 
 private slots:
     void readSerial();
+    void readCard();
+
+signals:
+    void newCard(QString);
 };
 
 #endif // SERIAL_H

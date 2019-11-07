@@ -7,25 +7,44 @@ serial :: serial(QObject *parent)
 {
     // ---
     sport = new QSerialPort();
-    dbFile.setFileName("db.db");
-    qDebug() << "Console: Serial port openned: " << openPort("/dev/serial0");
+    cardPort = new QSerialPort();
+
+    sport->setReadBufferSize(0);
+    cardPort->setReadBufferSize(0);
+
+
     connect(sport, SIGNAL(readyRead()), this, SLOT(readSerial()));
+    connect(cardPort, SIGNAL(readyRead()), this, SLOT(readCard()));
+
+    dbFile.setFileName("db.db");
+
+    qDebug() << "Console: Serial port opened: " << openPort("/dev/serial0", "/dev/ttyUSB0");
+
     isHeaderMode = true;
     sizeOfData = 0;
 }
 
 
-bool serial :: openPort(const QString& port)
+bool serial :: openPort(const QString& port, const QString& cport)
 {
     if(sport->isOpen())
         sport->close();
+    if(cardPort->isOpen())
+        cardPort->close();
 
     sport->setDataBits(QSerialPort::Data8);
     sport->setParity(QSerialPort::NoParity);
-    sport->setBaudRate(9600);
+    sport->setBaudRate(115200);
     sport->setPortName(port);
 
-    return sport->open(QIODevice::ReadWrite);
+    cardPort->setDataBits(QSerialPort::Data8);
+    cardPort->setParity(QSerialPort::NoParity);
+    cardPort->setBaudRate(115200);
+    cardPort->setPortName(cport);
+
+    if( sport->open(QIODevice::ReadWrite) && cardPort->open(QIODevice::ReadOnly) )
+        return true;
+    return false;
 }
 
 void serial :: readSerial()
@@ -52,10 +71,13 @@ void serial :: readSerial()
             }
             receivedHeader.clear();
         }
-    }else{
+    }else
+    {
         QByteArray in = sport->readAll();
-        readDataS += in.size();
+        readDataS += in.length();
         dbFile.write(in);
+        sport->flush();
+
         if(readDataS >= sizeOfData)
         {
             dbFile.close();
@@ -66,7 +88,18 @@ void serial :: readSerial()
     }
 }
 
+void serial :: readCard()
+{
+    cardData += cardPort->readAll();
+    if(cardData.endsWith("\n"));
+    {
+        emit newCard(QString(cardData));
+        cardData.clear();
+    }
+}
+
 void serial :: closePort()
 {
     sport->close();
+    cardPort->close();
 }
