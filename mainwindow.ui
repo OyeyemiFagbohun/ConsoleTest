@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>480</width>
-    <height>320</height>
+    <height>340</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>480</width>
-    <height>320</height>
+    <height>340</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>480</width>
-    <height>320</height>
+    <height>340</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QFrame#frame, QFrame#frame2{background: #E1E1E1; border: 1px solid grey; border-radius: 3px;}
-QLabel{color: #303641;}</string>
+QLabel{color: #303641; font-size: 9px;}</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
