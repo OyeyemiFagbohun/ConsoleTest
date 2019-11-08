@@ -25,6 +25,10 @@ private:
 public slots:
     void setMessage(QString);
     void newCard(QString);
+    void setCurSess(QString);
+    void setCurClass(QString);
+    void startNewClass(QString instructor, QString course, QString dateTime, int dur);
+    void clockStudent(QString name, QString id, QByteArray pasp, QString status);
 };
 
 #endif // MAINWINDOW_H

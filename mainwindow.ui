@@ -506,7 +506,7 @@ QLabel{color: #303641; font-size: 10px;}</string>
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="label_14">
+          <widget class="QLabel" name="cLecLab">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
              <horstretch>0</horstretch>
@@ -565,7 +565,7 @@ QLabel{color: #303641; font-size: 10px;}</string>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLabel" name="label_16">
+            <widget class="QLabel" name="cTitleLab">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -610,12 +610,12 @@ QLabel{color: #303641; font-size: 10px;}</string>
               <string notr="true">color: black;</string>
              </property>
              <property name="text">
-              <string>Date:</string>
+              <string>Class Date:</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLabel" name="label_20">
+            <widget class="QLabel" name="currDateLab">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -688,7 +688,7 @@ QLabel{color: #303641; font-size: 10px;}</string>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLabel" name="label_18">
+            <widget class="QLabel" name="cDurLab">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -733,12 +733,12 @@ QLabel{color: #303641; font-size: 10px;}</string>
               <string notr="true">color: black;</string>
              </property>
              <property name="text">
-              <string>Time: </string>
+              <string>Class Time: </string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLabel" name="label_22">
+            <widget class="QLabel" name="currTimeLab">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>

@@ -1,7 +1,12 @@
 #include "serial.h"
 #include <QDebug>
 #include <QSerialPort>
+#include <QSqlDriver>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QSqlRecord>
 #include <QTimer>
+#include <QDateTime>
 
 serial :: serial(QObject *parent)
     : QObject(parent)
@@ -18,6 +23,16 @@ serial :: serial(QObject *parent)
     connect(cardPort, SIGNAL(readyRead()), this, SLOT(readCard()));
 
     dbFile.setFileName("db.db");
+    dbConnected = false;
+    dbInUse = false;
+    classStarted = false;
+
+    const QString DRIVER("QSQLITE");
+    if(QSqlDatabase::isDriverAvailable(DRIVER))
+    {
+        db = QSqlDatabase::addDatabase(DRIVER);
+        db.setDatabaseName("db.db");
+    }
 
     if(openPort("/dev/serial0", "/dev/ttyUSB0"))
         emit message("Port connected");
@@ -27,9 +42,14 @@ serial :: serial(QObject *parent)
     isHeaderMode = true;
     sizeOfData = 0;
 
+    dbTimer = new QTimer();
+    connect(dbTimer, SIGNAL(timeout()), this, SLOT(updateDb()));
+
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(2000);
+
+    dbTimer->start(1700);
+    timer->start(3000);
 }
 
 
@@ -69,6 +89,8 @@ void serial :: readSerial()
             int cnv = receivedHeader.toInt();
             if(cnv > 0)
             {
+                db.close();
+                dbInUse = true;
                 isHeaderMode = false;
                 sizeOfData = cnv;
                 emit message("Getting data ..");
@@ -93,6 +115,7 @@ void serial :: readSerial()
             dbFile.close();
             sizeOfData = 0;
             isHeaderMode = true;
+            dbInUse = false;
             emit message("Get data done..");
             //qDebug() << "Data write done and saved ";
         }
@@ -105,8 +128,31 @@ void serial :: readCard()
     emit newCard(QString(cardData));
     if(cardData.endsWith("\n"));
     {
-        emit newCard(QString(cardData));
+        cardData.chop(1);
+        //emit newCard(QString(cardData));
+        QString card = QString(cardData);
         cardData.clear();
+        if(classStarted && !dbInUse && db.isOpen())
+        {
+            QSqlQuery query;
+            query.exec(QString("SELECT sName, sID, sPassport FROM '%1' WHERE sCardID='%2' ").arg(currentTable).arg(card));
+            if(query.next())
+            {
+                if(query.record().count() == 3)
+                {
+                    QString name = query.record().value(0).toString();
+                    QString id = query.record().value(1).toString();
+                    QByteArray pasp = query.record().value(2).toByteArray();
+                    emit clockStudent(name, id, pasp, "Success");
+                }else{
+                    emit clockStudent("", card, QByteArray(), "Error");
+                }
+            }else{
+                emit clockStudent("", card, QByteArray(), "Not registered");
+            }
+        }else{
+            emit clockStudent("", card, QByteArray(), "No Class");
+        }
     }
 }
 
@@ -118,8 +164,69 @@ void serial :: closePort()
 
 void serial :: update()
 {
-    if(cardPort->isOpen())
-        emit message("Cont ..");
-    else
-        emit message("failed");
+    cardPort->close();
+    cardPort->setPortName("/dev/ttyUSB0");
+
+    if(!cardPort->open(QIODevice::ReadWrite))
+    {
+        cardPort->setPortName("/dev/ttyUSB1");
+        cardPort->open(QIODevice::ReadWrite);
+    }
 }
+
+void serial :: updateDb()
+{
+    if(dbInUse)
+        return;
+
+    if(!db.isOpen())
+    {
+        db.open();
+        if(!db.isOpen());
+        else{
+            QSqlQuery query; //Start new SQL query to be executed
+            query.exec("SELECT name FROM sqlite_master WHERE type='table';");
+            if( query.next() )
+            {
+                QSqlRecord record = query.record();
+                currentTable = record.value(0).toString();
+                QStringList l = record.value(0).toString().split("%");
+                if(l.length() == 2)
+                {
+                    emit setCurClass(l.at(0));
+                    emit setCurSess(l.at(1));
+                    dbConnected = true;
+                }else
+                    db.close();
+            }else
+                db.close();
+        }
+    }else{
+        QSqlQuery query;
+        query.exec(QString("SELECT sDT, cDuration, cInstructor FROM '%1'").arg(currentTable));
+        if(query.next())
+        {
+            QString cTime = query.record().value(0).toString();
+            int duration = query.record().value(1).toInt();
+            QString cInstr = query.record().value(2).toString();
+            if(QDateTime::fromString(cTime) >= QDateTime::currentDateTime() && QDateTime::fromString(cTime).addSecs(60 * 60 * duration) < QDateTime::currentDateTime())
+            {
+                if(!classStarted)
+                {
+                    QString cCourse = currentTable.split("%").at(0);
+                    emit startNewClass(cInstr, cCourse, cTime, duration);
+                    classStarted = true;
+                }
+
+            }else{
+                if(classStarted)
+                {
+                    emit startNewClass("", "", "", 0);
+                }
+                classStarted = false;
+            }
+        }
+    }
+}
+
+
